@@ -1,0 +1,64 @@
+/* chatbot table.css */
+.custom-table {
+    width: 100%;
+    margin-top: 20px;
+    border-collapse: collapse;
+}
+
+.custom-table th,
+.custom-table td {
+    border: 1px solid #ccc;
+    text-align: center;
+    padding: 8px;
+}
+.modal-title {
+    font-family: 'Roboto', sans-serif;
+}
+.modal-content {
+    padding: 20px;
+}
+
+.modal-header {
+    text-align: center;
+    justify-content: center;
+}
+
+.modal-footer {
+    justify-content: center;
+}
+.chatbox {
+    max-height: 300px;
+    overflow-y: auto;
+    margin-bottom: 20px;
+}
+
+.input-container {
+    display: flex;
+    align-items: stretch;
+}
+
+
+.user-input {
+    flex: 1;
+    border-radius: 4px 0 0 4px;
+    height: 40px; /* 버튼 높이와 일치 */
+}
+.btn-primary {
+    border-radius: 0 4px 4px 0;
+    height: 40px; /* input 높이와 일치 */
+    background-color: #fff; /* 원래 bootstrap primary 색 */
+    color: #000; /* 텍스트 색 */
+    border: none;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+}
+
+#chatbotModalLabel {
+    font-family: 'Arial', sans-serif; /* 원하는 글꼴로 변경하세요. 예를 들면 'Arial' */
+    font-size: 24px; /* 원하는 크기로 조절 */
+    font-weight: bold; /* 글꼴을 두껍게 */
+}
+
+.user-input {
+    width: 80%;
+    margin-right: 10px;
+}

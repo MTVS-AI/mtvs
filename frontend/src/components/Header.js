@@ -1,126 +1,137 @@
 import React, { useState, useEffect,useMemo } from "react";
+import styled from 'styled-components';
 import { Link } from "react-router-dom";
-import Container from "react-bootstrap/Container";
-import Nav from "react-bootstrap/Nav";
-import Navbar from "react-bootstrap/Navbar";
-import NavDropdown from "react-bootstrap/NavDropdown";
 import axios from 'axios';
+import './Header.css'
+import Chatbot from './Chatbot';
 
-function Header() {
-    const [nickname, setNickname] = useState("");
-    const [profile, setProfile] = useState('default.png');
+const Nav = styled.nav`
+    background-color: #343a40;
+    color: white;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+`;
 
-    const TokenEmail = localStorage.getItem("email");
+const NavbarBrand = styled(Link)`
+    color: white;
+    font-weight: bold;
+    font-size: 1.5rem;
+    display: flex;
+    align-items: left;
+    text-decoration: none;
 
-    const token = useMemo(() => ({ email: TokenEmail }), [TokenEmail]);
-    const [logIn, setLogIn] = useState(false);
-  
-
-  useEffect(() => {
-    axios.post("http://localhost:3000/allmember", token)
-        .then((response) => {
-            setNickname(response.data.nickname); 
-            setProfile(response.data.profile);               
-        })
-        .catch((error) => {
-            console.error(error);
-        });
-  }, [token]);
-
-  useEffect(() => {
-    const logInUser = JSON.parse(localStorage.getItem("login"));
-    if (logInUser && logInUser.nickname) {
-      setLogIn(true);
-      setNickname(logInUser.nickname);
+    img {
+        height: 40px;
+        margin-right: 10px;
     }
-  }, []);
+`;
 
-  return (
-    <Navbar bg="light" expand="lg" style={{ padding: "0.5rem 1rem" }}>
-      <Container>
-        <Navbar.Brand>
-          <Link to="/">
-            <img
-              src="/gpt_logo.png"
-              style={{
-                width: "4vw",
-                marginRight: "1rem",
-              }}
-              alt="GPT Logo"
-            />
-          </Link>
-        </Navbar.Brand>
-        <Navbar.Toggle aria-controls="basic-navbar-nav" />
-        <Navbar.Collapse id="basic-navbar-nav">
-          <Nav className="mx-auto">
-            <NavDropdown
-              title="GYMS"
-              id="gyms-dropdown"
-              style={{ marginLeft: "5vw" }}
-            >
-              <NavDropdown.Item as={Link} to="/gyms">
-                GYMS
-              </NavDropdown.Item>
-              <NavDropdown.Item as={Link} to="/trainers">
-                TRAINERS
-              </NavDropdown.Item>
-            </NavDropdown>
+const TogglerButton = styled.button`
+    text-transform: uppercase;
+    font-weight: bold;
+    color: white !important;
+    background: none !important;
+    border: none;
+`;
+const NavbarList = styled.ul`
+    align-items: ${props => props.$isToggled ? 'flex-end' : 'left'};
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    padding-left: 0;
+    margin-left: auto; 
+    margin-right: auto;
 
-            <NavDropdown
-              title="STORE"
-              id="INFORMATION-dropdown"
-              style={{ marginLeft: "5vw" }}
-            >              
-              <NavDropdown.Item as={Link} to="/charge">
-                CHARGE
-              </NavDropdown.Item>
-              <NavDropdown.Item as={Link} to="/payCoin">
-                PAYCOIN
-              </NavDropdown.Item>
-            </NavDropdown>            
-          </Nav>
-          <Nav className="ms-auto" style={{ marginTop: "-3rem" }}>
-          {logIn ? (
+    li {
+        margin: 0 10px;
+        text-align: left;
+    }
+
+    a {
+        color: white;
+        padding: 0.5rem 1rem;
+        text-decoration: none;
+
+        &:hover {
+            background-color: #495057;
+            border-radius: 5px;
+        }
+    }
+
+    @media (min-width: 992px) {
+        flex-direction: row;
+    }
+`;
+
+
+function Header({ handleShowModal }) { // handleShowModal을 프로퍼티로 받음
+    const [isToggled, setIsToggled] = useState(false);
+    
+    const handleToggle = () => {
+        setIsToggled(!isToggled);
+    };
+
+    const handleCloseOnEsc = (e) => {
+        if (e.key === 'Escape') {
+            setIsToggled(false);
+        }
+    };
+
+    useEffect(() => {
+        const handleCloseOnOutsideClick = (e) => {
+            if (isToggled && !document.querySelector('.navbar').contains(e.target)) {
+                setIsToggled(false);
+            }
+        };
+    
+        if (isToggled) {
+            window.addEventListener('click', handleCloseOnOutsideClick);
+        } else {
+            window.removeEventListener('click', handleCloseOnOutsideClick);
+        }
+    
+        return () => {
+            window.removeEventListener('click', handleCloseOnOutsideClick);
+        };
+    }, [isToggled]);
+
+    return (
         <>
-          <Nav.Link
-            as={Link}
-            to="/mypage"
-            className="nav-link"
-            style={{ fontSize: "0.9rem" }}
-          >
-            <Link to="/mypage"><img alt="프로필이미지" src={`http://localhost:3000/images/${profile}`}
-                    style={{cursor: "pointer"}}
-                    width="20px"
-                    height="20px"/>
-            </Link>
-            {nickname}
-          </Nav.Link>
-          <Nav.Link
-            as={Link}
-            to="/logout"
-            className="nav-link"
-            style={{ fontSize: "0.9rem" }}
-          >
-            LOGOUT
-          </Nav.Link>
+        <Nav className="navbar navbar-expand-lg text-uppercase">
+            <div className="container">
+                <NavbarBrand to="/">
+                    <img src="/MTVS_logo_white.png" alt="mtvs" className="navbar-logo" />
+                    <i className="fas fa-bars">MTVS</i>
+                </NavbarBrand>
+                <TogglerButton
+                    className="navbar-toggler text-uppercase font-weight-bold bg-primary text-white rounded"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    data-bs-target="#navbarResponsive"
+                    onClick={handleToggle}
+                >
+                    <i className="fas fa-bars">Menu</i>
+                </TogglerButton>
+                <div className={`collapse navbar-collapse ${isToggled ? 'show' : ''}`} id="navbarResponsive">
+                    <NavbarList $isToggled={isToggled} className="navbar-nav">
+                        <li className="nav-item mx-0 mx-lg-1">
+                            <Link to="/Main" className="nav-link py-3 px-0 px-lg-3 rounded">
+                                <i className="fas fa-bars">CLEANER</i>
+                            </Link>
+                        </li>
+                        <li className="nav-item mx-0 mx-lg-1">
+                            <Link to="#" className="nav-link py-3 px-0 px-lg-3 rounded" onClick={handleShowModal}>
+                                <i className="fas fa-bars">INQUIRY</i>
+                            </Link>
+                        </li>
+                    </NavbarList>
+                </div>
+            </div>
+        </Nav>
         </>
-      ) : (
-        <>
-          <Nav.Link
-            as={Link}
-            to="/login"
-            className="nav-link"
-            style={{ fontSize: "0.9rem" }}
-          >
-            LOGIN
-          </Nav.Link>
-        </>
-      )}
-    </Nav>
-        </Navbar.Collapse>
-      </Container>
-    </Navbar>
-  );
-}
+    );
+};
 
 export default Header;

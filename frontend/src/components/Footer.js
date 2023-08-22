@@ -3,41 +3,38 @@ import './Footer.css';
 import {Link} from 'react-router-dom';
 export const Footer = (props) => {
     return (
-        <footer class="footer">
-            <div class="footer-left col-md-4 col-sm-6">
-                <p class="about">
-                <span> MTVS</span> MTVS 최고
+        <footer className="footer">
+            <div className="footer-left col-md-4 col-sm-6">
+                <p> METAVERSE</p>
+                <p className="about">
+                <span> Banner Cleaner</span>
                 </p>
-                <div class="icons">
-                <Link><img src='facebook-f.svg' style={{width:'30px', height:'30px'}}/></Link>
-                <Link><img src='instagram.svg' style={{width:'30px', height:'30px'}}/></Link>
-                <Link><img src='twitter.svg' style={{width:'30px', height:'30px'}}/></Link>
+                <div className="icons">
+                <Link to="#"><img src='facebook.png' className="icon-size"/></Link>
+                <Link to="#"><img src='newgram.png' className="icon-size"/></Link>
+                <Link to="#"><img src='twitter.png' className="icon-size"/></Link>
                 </div>
             </div>
-            <div class="footer-center col-md-4 col-sm-6">
+            <div className="footer-center col-md-4 col-sm-6">
                 <div>
-                <i class="fa fa-map-marker"></i>
-                <p> MultiCapmus, Final 7 Team</p>
-                </div>
-                <div>
-                <i class="fa fa-phone"></i>
+                <i className="fa fa-map-marker"></i>
                 
                 </div>
                 <div>
-                <i class="fa fa-envelope"></i>
-                <p><Link> dlsco1230@gmail.com</Link></p>
-                </div>
+                <i className="fa fa-phone"></i>
             </div>
-            <div class="footer-right col-md-4 col-sm-6">
-                <h2> MTVS<span> <img src='./gpt_logo.png' alt='logo' style={{width:'100px',height:'100px'}}></img></span></h2>
-                <p class="menu">
+                
+            </div>
+            <div className="footer-right col-md-4 col-sm-6">
+                <h2> MTVS<span> <img src='./MTVS_logo_white.png' alt='logo' style={{width:'100px',height:'100px'}}></img></span></h2>
+                <p className="menu">
                 <Link> develop by </Link>&nbsp; | &nbsp;
                 <Link> 나인채</Link>&nbsp; | &nbsp;
                 <Link> 임정민</Link>&nbsp; | &nbsp;
                 <Link> 김종민</Link>&nbsp; | &nbsp;
-                <Link> 차민수</Link>&nbsp; | &nbsp;
+                <Link> 차민수</Link>&nbsp;
                 </p>
-                <p class="name"> Gympt-5 &copy; 2023</p>
+                <p className="name"> MTVS &copy; 2023</p>
             </div>
         </footer>      
     )

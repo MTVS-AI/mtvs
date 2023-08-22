@@ -1,0 +1,38 @@
+.navbar-collapse.collapse.show {
+    transform: translateX(0);
+    position: fixed;
+    top: 0;
+    right: 0;
+    /* left: 0; */
+    width: 100%;
+    max-width: 130px; /* 또는 원하는 너비 */
+    height: 100%;
+    overflow-y: auto;
+    background-color: #343a40; /* 또는 원하는 배경 색상 */
+    transition: all 0.3s;
+    z-index: 9999;
+    }
+
+.container {
+    width: 70% !important; /* 원하는 크기로 설정 */
+    }
+.navbar-collapse {
+    transform: translateX(45%);
+    transition: all 0.3s;
+    }
+.navbar-collapse.collapsing {
+    transform: translateX(0);
+    position: fixed;
+    justify-content: left;
+    top: 0;
+    /* right: 0; */
+    left: 0;
+    width: 60%;
+    max-width: 100px;
+    height: 100%;
+    overflow-y: auto;
+    background-color: #343a40; /* 또는 원하는 배경 색상 */
+    transition: all 0.3s ease;
+    z-index: 9999;
+    }
+
