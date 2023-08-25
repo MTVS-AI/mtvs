@@ -2,10 +2,15 @@
 
 # dependencies
 frontend/node_modules
+backend/logs
+backend/runs
+backend/reports
+backend/capture_data
+check_report
 /.pnp
 .pnp.js
 backend/venv
-
+__pycache__
 # testing
 /coverage
 

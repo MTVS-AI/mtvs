@@ -25,8 +25,6 @@ for temp in range(len(df1)):
 
 collections.add(embeddings=embeddings, metadatas=metadata, ids=ids)
 
-
-@myhome_bp.route('/chatbot', methods=['POST'])
 def chatbot():
     chat_text = model.encode(request.json.get('chat'))
     query_result = collections.query(query_embeddings=[chat_text.tolist()], n_results=3)

@@ -6,7 +6,6 @@ import { Footer } from '../components/Footer';
 import Chatbot from '../components/Chatbot';
 import axiosInstance from '../axiosInstance';
 import axios from 'axios';
-import { Helmet } from 'react-helmet';
 
 const MainContainer = styled.div`
     background-color: #22741C;
@@ -18,6 +17,8 @@ function Main() {
     const history = useNavigate();
     const [files, setFiles] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [uploadComplete, setUploadComplete] = useState(false);
+
 
     const handleFileChange = (e) => {
         setFiles(Array.from(e.target.files));
@@ -30,18 +31,24 @@ function Main() {
         const formData = new FormData();
     
         files.forEach(file => {
-            formData.append('images[]', file);
+            formData.append('files[]', file);
         });
-
-    try {
-        const response = await axios.post('/myhome/upload', formData, {
-            headers: {
-            'Content-Type': 'multipart/form-data',
-            },
-        });
-        alert(response.data.message);
+        try {
+            const response = await axios.post('http://localhost:5000/myhome/map', formData, {
+                headers: {
+                'Content-Type': 'multipart/form-data',
+                },
+            });
+            console.log(response.data);
+            if (response.data) {
+                alert(response.data);  // 수정된 부분
+                setUploadComplete(true);  // 업로드 완료 상태 설정
+            } else {
+                alert('No data received from server.');
+            }
         } catch (error) {
-        alert('An error occurred.');
+            console.log(error);
+            alert('An error occurred.');
         }finally {
             setLoading(false); 
         }        
@@ -52,9 +59,13 @@ function Main() {
     return (
         <>
             <Header />
-            <Helmet>
-                <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" />
-            </Helmet>
+            {uploadComplete && (
+            <div>
+                {/* 이 부분에 업로드 완료 시 표시할 내용을 넣습니다. */}
+                <p>Upload Complete! Here is your popup...</p>
+                {/* Popup 코드를 여기에 넣을 수 있습니다. */}
+            </div>
+            )}
             
             <MainContainer className="d-flex flex-column align-items-center justify-content-center">
                 <div className="container d-flex align-items-center flex-column">
@@ -73,7 +84,7 @@ function Main() {
                             <input
                                 type="file"
                                 id="csvFile"
-                                name="images[]"
+                                name="files[]"
                                 multiple
                                 style={{ display: 'none' }}
                                 onChange={handleFileChange}

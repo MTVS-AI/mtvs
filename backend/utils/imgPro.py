@@ -15,11 +15,13 @@ from tqdm import tqdm
 import cv2
 from paddleocr import PaddleOCR, draw_ocr
 from ultralytics import YOLO
+from .folium_map import MapManager as MM
 
 
 class ImageProcess:
     def __init__(self, openai_key, clova_api_url, clova_secret_key):
-        self.model = YOLO('best.pt')
+        print("Current working directory:", os.getcwd())
+        self.model = YOLO('./best.pt')
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         self.openai_key = openai_key
         self.clova_api_url = clova_api_url
@@ -31,12 +33,15 @@ class ImageProcess:
         self.predict_crop_frame_path = self.predict_path + self.class_names[1]
         self.log_path = 'logs/'
         self.ocr = PaddleOCR(lang = 'korean')
-        self.imgs = glob('capture_data/*.jpg')
-        self.json_file_path = 'capture_data/meta_data.json'
-        # openai.api_key = self.openai_key
+        # 추가 ////////
+        self.date_created = ''
+        self.imgs = glob('./capture_data/*.jpg')
+        self.json_file_path = './capture_data/meta_data.json'
+        openai.api_key = self.openai_key
 
     def make_frame(self):
-        with open(self.json_file_path, 'r') as json_file:
+        # encoding 추가 ////////
+        with open(self.json_file_path, 'r', encoding='UTF-8') as json_file:
             meta_data = json.load(json_file)
 
         # DataFrame 정의
@@ -48,7 +53,7 @@ class ImageProcess:
                 'Date' : date_time[0],
                 'Time' : date_time[1],
                 'Location' : [item['location']['latitude'], item['location']['longitude']],
-                'Origin_img' : [np.array(Image.open('capture_data/' + item['file_name'])).tolist()],
+                'Origin_img' : [np.array(Image.open('./capture_data/' + item['file_name'])).tolist()],
                 'Detect_img' : [],
                 'Crop_classes' : [],
                 'Crop_imgs' : [],
@@ -63,8 +68,16 @@ class ImageProcess:
             df_data.append(df_row)
 
         df_report = pd.DataFrame(df_data)
-        date_created = meta_data['dataset_info']['date_created'].split("T")[0].split("-")
-        df_report.to_csv('reports/report_' + '_'.join(date_created) + '.csv')
+        self.date_created = meta_data['dataset_info']['date_created'].split("T")[0].split("-")
+        time.sleep(0.1)
+
+        abs_path = os.path.abspath(os.path.join(os.path.dirname(__file__),'..', 'reports'))
+        print("reports path is:", abs_path)
+        if not os.path.exists(abs_path):
+            os.mkdir(abs_path)
+
+        df_report.to_csv('./reports/report_' + '_'.join(self.date_created) + '.csv')
+        print("well-made frame")
         return df_report
     
     def move_all_img(self, source_folder, destination_folder):
@@ -73,6 +86,7 @@ class ImageProcess:
             source_item = os.path.join(source_folder, item)
             destination_item = os.path.join(destination_folder, item)
             shutil.move(source_item, destination_item)
+        print("well-move all img")
 
     def move_img(self, source_path, destination_path):
         if not os.path.exists(os.path.dirname('/'.join(destination_path.split('/')[:-1])+'/')):
@@ -196,7 +210,8 @@ class ImageProcess:
             df_report['Category_basis'].iloc[id] = [0 if class_name=='frame' else -1 for class_name in crop_classes]
             df_report = self.check_category(df_report,id,image,crop_classes,crop_xyxy)
         return df_report
-
+    
+# ----------------여기까지 진행함 ----------------------
     # TODO: Recognition Texts with CLOVA OCR
     def clova_ocr(self, img_path):
         request_json = {
@@ -215,12 +230,12 @@ class ImageProcess:
         files = [
         ('file', open(img_path,'rb'))
         ]
-
+        # secret_key -> clova_secret_key 변경 ////////
         headers = {
-        'X-OCR-SECRET': self.secret_key
+        'X-OCR-SECRET': self.clova_secret_key
         }
-
-        response = requests.request("POST", self.api_url, headers=headers, data = payload, files = files)
+        # api_url -> clova_api_url로 변경 ////////
+        response = requests.request("POST", self.clova_api_url, headers=headers, data = payload, files = files)
         return response
 
     def get_clova_contents(self, img_path):        
@@ -238,7 +253,7 @@ class ImageProcess:
         for i in range(n_crops):
             # 만약 'banner'면 해당 사진의 contents를 추출해 저장
             if df_report.loc[idx]['Crop_classes'][i] == 'banner':
-                img_path = 'naver_ocr_temp.jpg'
+                img_path = './naver_ocr_temp.jpg'
                 image = Image.fromarray(np.uint8(df_report.loc[idx]['Crop_imgs'][i]))
                 image.save(img_path, 'jpeg')
                 contents = self.get_clova_contents(img_path)
@@ -252,7 +267,7 @@ class ImageProcess:
     def classify_text(self, text):
         text = ' '.join(text)
         response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
+            model="gpt-3.5-turbo-0613",
             messages=[
                 {"role": "system", "content": "You are responsible for classifying the text of advertising banners near the road or on the street."},
                 {"role": "system", "content": "There are a total of three classes of advertising banners to classify."},
@@ -302,15 +317,14 @@ class ImageProcess:
         return df_report
 
     def run_all(self, imgs, json_file_path):
+        df_report = self.make_frame()
         for idx,img in enumerate(imgs):
-            df_report = self.make_frame(json_file_path)
             time.sleep(1)
             df_report = self.yolo_run(img, df_report)
             time.sleep(1)
-            # idx = 0 # 추정되는 인덱스, 필요에 따라 조절 가능.
+            # idx = 15 # 추정되는 인덱스, 필요에 따라 조절 가능.
             df_report = self.clova_ocr_run(idx, df_report)
             time.sleep(1)
             df_report = self.chatGPT_run(idx,df_report)
-
-        df_report.to_csv('reports/report_'+'_'.join(self.date_created)+'.csv')        
-        print("Process completed successfully.") 
+        MM(df_report)
+        print("Process completed successfully.")

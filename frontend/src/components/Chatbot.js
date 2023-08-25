@@ -28,6 +28,12 @@ const Chatbot = () => {
         setShowModal(false);
     };
 
+    useEffect(() => {
+        if (showModal) {
+            userInputRef.current.focus(); // Modal이 열릴 때 input에 focus
+        }
+    }, [showModal]);
+
 
     const sendMessage = useCallback(async () => {
         const chatbox = chatboxRef.current;
@@ -63,8 +69,20 @@ const Chatbot = () => {
                 }
             };
         }
-    }, [sendMessage]);  // 의존성 배열에 sendMessage 추가
+    }, [sendMessage]);
 
+    useEffect(() => {
+        const handleKeyDown = (event) => {
+            if (event.keyCode === 27) {
+                handleHideModal();
+            }
+        };
+        window.addEventListener("keydown", handleKeyDown);
+        return () => {
+            window.removeEventListener("keydown", handleKeyDown);
+        };
+    }, []); 
+    
     return (
         <>            
         <Header handleShowModal={() => setShowModal(true)} />
