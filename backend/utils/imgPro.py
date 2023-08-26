@@ -211,8 +211,7 @@ class ImageProcess:
             df_report = self.check_category(df_report,id,image,crop_classes,crop_xyxy)
         return df_report
     
-# ----------------여기까지 진행함 ----------------------
-    # TODO: Recognition Texts with CLOVA OCR
+# TODO: Recognition Texts with CLOVA OCR
     def clova_ocr(self, img_path):
         request_json = {
             'images': [

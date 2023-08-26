@@ -33,6 +33,8 @@ function Main() {
         files.forEach(file => {
             formData.append('files[]', file);
         });
+        console.log('Files:', files); // handleFileChange 함수에 이 코드를 추가
+
         try {
             const response = await axios.post('http://localhost:5000/myhome/map', formData, {
                 headers: {
@@ -40,20 +42,23 @@ function Main() {
                 },
             });
             console.log(response.data);
-            if (response.data) {
-                alert(response.data);  // 수정된 부분
-                setUploadComplete(true);  // 업로드 완료 상태 설정
-            } else {
-                alert('No data received from server.');
-            }
-        } catch (error) {
-            console.log(error);
-            alert('An error occurred.');
-        }finally {
-            setLoading(false); 
-        }        
-    };
 
+            // 추가된 부분 시작
+            if (response.data.mapHtml) {
+                document.getElementById("map-container").innerHTML = response.data.mapHtml;
+                alert('Map loaded successfully.');
+                setUploadComplete(true);
+            } else {
+                alert('No map data received from server.');
+            }
+            // 추가된 부분 끝
+        } catch (error) {
+            console.log('Error:', error.response.data); // catch 블록에 이 코드를 추가
+            alert('An error occurred.');
+        } finally {
+            setLoading(false);
+        }
+    };
 
 
     return (
@@ -63,7 +68,7 @@ function Main() {
             <div>
                 {/* 이 부분에 업로드 완료 시 표시할 내용을 넣습니다. */}
                 <p>Upload Complete! Here is your popup...</p>
-                {/* Popup 코드를 여기에 넣을 수 있습니다. */}
+                <div id="map-container" />
             </div>
             )}
             
